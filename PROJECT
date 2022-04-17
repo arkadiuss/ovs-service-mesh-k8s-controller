@@ -1,0 +1,12 @@
+domain: arkadiuss.dev
+layout:
+- go.kubebuilder.io/v3
+projectName: ovs-service-mesh-controller
+repo: arkadiuss.dev/ovs-service-mesh-controller
+resources:
+- controller: true
+  group: apps
+  kind: Deployment
+  path: k8s.io/api/apps/v1
+  version: v1
+version: "3"
