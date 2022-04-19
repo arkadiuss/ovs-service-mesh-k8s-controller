@@ -18,10 +18,7 @@ package controllers
 
 import (
 	"context"
-	"io"
-	"net/http"
 
-	"github.com/digitalocean/go-openvswitch/ovs"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -64,40 +61,38 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		log.Error(err, "could not fetch Deployment")
 		return reconcile.Result{}, err
 	}
+	log.Info("Reconciling %s from namespace %s", req.Name, deployment.Status)
 
-	log.Info("Reconciling %s from namespace %s", req.Name, req.Namespace)
+	// log.Info("Looking for consul instance...")
 
-	log.Info("Looking for consul instance...")
+	// resp, err := http.Get("http://localhost:8500/v1/catalog/services")
+	// if err != nil {
+	// 	log.Error(err, "could not fetch consul")
+	// }
+	// defer resp.Body.Close()
+	// if resp.StatusCode == http.StatusOK {
+	// 	bodyBytes, err := io.ReadAll(resp.Body)
+	// 	if err != nil {
+	// 		log.Error(err, "cannot read body")
+	// 	}
+	// 	bodyString := string(bodyBytes)
+	// 	log.Info(bodyString)
+	// }
 
-	resp, err := http.Get("http://localhost:8500/v1/catalog/services")
-	if err != nil {
-		log.Error(err, "could not fetch consul")
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Error(err, "cannot read body")
-		}
-		bodyString := string(bodyBytes)
-		log.Info(bodyString)
-	}
+	// c := ovs.New(
+	// // Prepend "sudo" to all commands.
+	// // ovs.Sudo(),
+	// )
 
-	c := ovs.New(
-		// Prepend "sudo" to all commands.
-		ovs.Sudo(),
-		ovs.SetTCPParam(""),
-	)
-
-	// $ sudo ovs-ofctl add-flow ovsbr0 priority=100,ip,actions=drop
-	err = c.OpenFlow.AddFlow("br1", &ovs.Flow{
-		Priority: 100,
-		Protocol: ovs.ProtocolIPv4,
-		Actions:  []ovs.Action{ovs.Drop()},
-	})
-	if err != nil {
-		log.Error(err, "failed to add flow")
-	}
+	// // $ sudo ovs-ofctl add-flow ovsbr0 priority=100,ip,actions=drop
+	// err = c.OpenFlow.AddFlow("tcp:192.168.66.101:6633", &ovs.Flow{
+	// 	Priority: 100,
+	// 	Protocol: ovs.ProtocolIPv4,
+	// 	Actions:  []ovs.Action{ovs.Drop()},
+	// })
+	// if err != nil {
+	// 	log.Error(err, "failed to add flow")
+	// }
 
 	return ctrl.Result{}, nil
 }
