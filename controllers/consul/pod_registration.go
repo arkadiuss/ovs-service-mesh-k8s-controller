@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"arkadiuss.dev/ovs-service-mesh-controller/controllers/config"
 	consulapi "github.com/hashicorp/consul/api"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
@@ -19,9 +20,6 @@ type NetworkStatus struct {
 	IPs  []string
 }
 
-var (
-	VirtualIP = "10.10.10.254" // TODO: config
-)
 var consulClient *consulapi.Client
 
 var (
@@ -51,7 +49,8 @@ func PodContainerToConsulService(pod *corev1.Pod, containerStatus corev1.Contain
 	for _, networkStatus := range networks {
 		if networkStatus.Name == pod.Annotations[NetworkaNameAnnotation] {
 			networkFound = true
-			service.Address = networkStatus.IPs[0]
+			fmt.Printf("NETWORKSTARTU %s", networksJsonString)
+			service.Address = ""
 		}
 	}
 	if !networkFound {
@@ -72,10 +71,13 @@ func PodContainerToConsulService(pod *corev1.Pod, containerStatus corev1.Contain
 			}
 
 			upstreams = append(upstreams, consulapi.Upstream{
-				LocalBindAddress: VirtualIP,
+				LocalBindAddress: config.GetConfig().VirtualIP,
 				LocalBindPort:    port,
 				DestinationName:  upstream[0],
 			})
+		}
+		service.Proxy = &consulapi.AgentServiceConnectProxyConfig{
+			Upstreams: upstreams,
 		}
 		service.Connect = &consulapi.AgentServiceConnect{
 			SidecarService: &consulapi.AgentServiceRegistration{

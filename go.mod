@@ -3,6 +3,7 @@ module arkadiuss.dev/ovs-service-mesh-controller
 go 1.17
 
 require (
+	github.com/digitalocean/go-openvswitch v0.0.0-20211105174344-2a0f99c6436b
 	github.com/hashicorp/consul/api v1.1.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.17.0

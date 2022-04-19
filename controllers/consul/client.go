@@ -1,11 +1,12 @@
 package consul
 
-import consulapi "github.com/hashicorp/consul/api"
-
-var consulAddr = "http://localhost:8500" // TODO: config
+import (
+	"arkadiuss.dev/ovs-service-mesh-controller/controllers/config"
+	consulapi "github.com/hashicorp/consul/api"
+)
 
 func GetConsulClient() (*consulapi.Client, error) {
 	return consulapi.NewClient(&consulapi.Config{
-		Address: consulAddr,
+		Address: config.GetConfig().ConsulAddr,
 	})
 }
