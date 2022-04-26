@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net"
 
+	"arkadiuss.dev/ovs-service-mesh-controller/controllers/common"
 	"arkadiuss.dev/ovs-service-mesh-controller/controllers/config"
 	consul "arkadiuss.dev/ovs-service-mesh-controller/controllers/consul"
 	"github.com/digitalocean/go-openvswitch/ovs"
 	consulapi "github.com/hashicorp/consul/api"
+	corev1 "k8s.io/api/core/v1"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -21,7 +23,7 @@ func GetService(client consulapi.Client, serviceName string) ([]*consulapi.Catal
 	return services, nil
 }
 
-func CreateOVSFlows(serviceName string, ctx context.Context) error {
+func CreateOVSFlows(serviceName string, ctx context.Context, pod *corev1.Pod) error {
 	var log = logf.FromContext(ctx)
 
 	consulClient, err := consul.GetConsulClient()
@@ -57,6 +59,15 @@ func CreateOVSFlows(serviceName string, ctx context.Context) error {
 			// action={port}"\
 			// 		""")
 
+			//WIP
+			network, err := common.GetSwitchNetwork(pod)
+			if err != nil {
+				log.Error(err, "Pod in no network")
+				return err
+			}
+			network = network
+			// mac := network.Name
+
 			// TODO: get from kubernetes
 			dstMac, err := net.ParseMAC("00:11:22:33:44:55")
 			if err != nil {
@@ -78,7 +89,7 @@ func CreateOVSFlows(serviceName string, ctx context.Context) error {
 				},
 			}
 			rule1Text, err := rule1.MarshalText()
-			log.Info("rule1", "text", rule1Text)
+			log.Info("rule1", "text", string(rule1Text))
 
 		}
 	}

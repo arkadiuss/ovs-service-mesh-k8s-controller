@@ -50,7 +50,7 @@ type PodReconciler struct {
 func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
 	var log = logf.FromContext(ctx)
-	log.Info("Reconciling", "pod", req.Name, "namespace", req.Namespace)
+	// log.Info("Reconciling", "pod", req.Name, "namespace", req.Namespace)
 	pod := &corev1.Pod{}
 	err := r.Client.Get(ctx, req.NamespacedName, pod)
 	if err != nil {

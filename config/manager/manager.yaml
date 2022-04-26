@@ -31,7 +31,7 @@ spec:
         - /manager
         args:
         - --leader-elect
-        image: controller:latest
+        image: registry:5000/ovs-service-mesh-controller
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
