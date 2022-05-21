@@ -109,7 +109,7 @@ func CreateOVSFlows(serviceName string, ctx context.Context, k8sClient client.Cl
 					ovs.Normal(),
 				},
 			}
-			fmt.Printf("\n\n\n ---- Network rules for %s -----\n\n\n", service.Address)
+			fmt.Printf("\n\n\n ---- Network rules for %s -----\n\n\n", service.ServiceName)
 			for _, rule := range rules {
 				rule1Text, _ := rule.MarshalText()
 				ruleText := strings.Replace(string(rule1Text), "idle_timeout=0,", "", 1)
