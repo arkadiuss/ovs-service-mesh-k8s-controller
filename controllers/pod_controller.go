@@ -23,6 +23,7 @@ import (
 	ovs "arkadiuss.dev/ovs-service-mesh-controller/controllers/ovs"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	types "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -58,13 +59,25 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		return ctrl.Result{}, nil
 	}
 
+	consulPod := &corev1.Pod{}
+	consuPodName := types.NamespacedName{
+		Namespace: "consul",
+		Name:      "consul-server-0",
+	}
+	err = r.Client.Get(ctx, consuPodName, consulPod)
+	if err != nil {
+		log.Info("could not fetch Consul Pod", "error", err.Error())
+		return ctrl.Result{}, nil
+	}
+	log.Info("Consul is at: ", "address", consulPod.Status.PodIP, "address", consulPod.Status.HostIP)
+
 	registeredServiceNames, err := consul.RegisterPodInConsul(pod, ctx)
 	if err != nil {
 		log.Error(err, "Unalbe to register pod in consul")
 	}
 	if registeredServiceNames != nil {
 		for _, registeredService := range *registeredServiceNames {
-			ovs.CreateOVSFlows(registeredService, ctx)
+			ovs.CreateOVSFlows(registeredService, ctx, r.Client)
 		}
 	}
 

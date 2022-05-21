@@ -26,7 +26,7 @@ func PodContainerToConsulService(pod *corev1.Pod, containerStatus corev1.Contain
 	service := &consulapi.AgentServiceRegistration{}
 
 	service.Name = pod.Labels["app"]
-	service.ID = fmt.Sprintf("%s-%s", pod.Name, containerStatus.Name)
+	service.ID = pod.Name
 	service.Tags = []string{"managed-by:ovs-servicemesh"}
 	service.Port = GetContainerPort(pod, containerStatus.Name)
 

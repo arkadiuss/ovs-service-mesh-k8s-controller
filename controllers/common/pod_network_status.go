@@ -16,6 +16,7 @@ var (
 type NetworkStatus struct {
 	Name string
 	IPs  []string
+	Mac  string
 }
 
 func GetSwitchNetwork(pod *corev1.Pod) (*NetworkStatus, error) {
