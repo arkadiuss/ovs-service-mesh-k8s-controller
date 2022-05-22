@@ -8,6 +8,6 @@ type Config struct {
 func GetConfig() *Config {
 	return &Config{
 		ConsulAddr: "http://localhost:8500",
-		VirtualIP:  "10.10.10.254",
+		VirtualIP:  "10.1.1.254",
 	}
 }

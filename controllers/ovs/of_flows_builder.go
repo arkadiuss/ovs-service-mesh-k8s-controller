@@ -73,39 +73,54 @@ func CreateOVSFlows(serviceName string, ctx context.Context, k8sClient client.Cl
 				return err
 			}
 
-			rules := make([]*ovs.Flow, 3)
+			rules := make([]*ovs.Flow, 4)
 			rules[0] = &ovs.Flow{
-				Priority: 60,
-				Protocol: ovs.ProtocolTCPv4,
-				Matches: []ovs.Match{
-					ovs.NetworkDestination(config.GetConfig().VirtualIP),
-					ovs.TransportDestinationPort(uint16(upstream.LocalBindPort)),
-				},
-				Actions: []ovs.Action{
-					ovs.ConnectionTracking(fmt.Sprintf("commit,zone=1,nat(dst=%s:%d)", proxyService.ServiceAddress, proxyService.ServicePort)),
-					ovs.ModDataLinkDestination(dstMac),
-					ovs.Normal(),
-				},
-			}
-			rules[1] = &ovs.Flow{
 				Priority: 50,
 				Protocol: ovs.ProtocolTCPv4,
 				Matches: []ovs.Match{
 					ovs.ConnectionTrackingState("-trk"),
 				},
 				Actions: []ovs.Action{
-					ovs.ConnectionTracking("table=0,zone=1,nat"),
+					ovs.ConnectionTracking("table=0"),
+				},
+			}
+			rules[1] = &ovs.Flow{
+				Priority: 50,
+				Protocol: ovs.ProtocolTCPv4,
+				Matches: []ovs.Match{
+					ovs.ConnectionTrackingState("+trk+new"),
+					ovs.NetworkDestination(config.GetConfig().VirtualIP),
+					ovs.TransportDestinationPort(uint16(upstream.LocalBindPort)),
+				},
+				Actions: []ovs.Action{
+					ovs.ConnectionTracking(fmt.Sprintf("commit,nat(dst=%s:%d)", proxyService.ServiceAddress, proxyService.ServicePort)),
+					ovs.ModDataLinkDestination(dstMac),
+					ovs.Normal(),
 				},
 			}
 			rules[2] = &ovs.Flow{
 				Priority: 50,
 				Protocol: ovs.ProtocolTCPv4,
 				Matches: []ovs.Match{
-					ovs.ConnectionTrackingState("+est"),
-					ovs.ConnectionTrackingZone(1),
+					ovs.ConnectionTrackingState("+trk+est"),
+					ovs.NetworkDestination(config.GetConfig().VirtualIP),
+					ovs.TransportDestinationPort(uint16(upstream.LocalBindPort)),
+				},
+				Actions: []ovs.Action{
+					ovs.ConnectionTracking("nat"),
+					ovs.ModDataLinkDestination(dstMac),
+					ovs.Normal(),
+				},
+			}
+			rules[3] = &ovs.Flow{
+				Priority: 50,
+				Protocol: ovs.ProtocolTCPv4,
+				Matches: []ovs.Match{
+					ovs.ConnectionTrackingState("+trk+est"),
 					ovs.NetworkDestination(service.ServiceAddress),
 				},
 				Actions: []ovs.Action{
+					ovs.ConnectionTracking("nat"),
 					ovs.Normal(),
 				},
 			}
