@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -27,7 +28,7 @@ func GetSwitchNetwork(pod *corev1.Pod) (*NetworkStatus, error) {
 	}
 
 	for _, networkStatus := range networks {
-		if networkStatus.Name == pod.Annotations[NetworkaNameAnnotation] {
+		if strings.Contains(networkStatus.Name, pod.Annotations[NetworkaNameAnnotation]) {
 			// fmt.Printf("NETWORKSTARTU %s", networksJsonString)
 			return &networkStatus, nil
 		}

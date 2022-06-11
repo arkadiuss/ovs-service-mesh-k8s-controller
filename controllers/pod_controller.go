@@ -69,7 +69,7 @@ func (r *PodReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.R
 		log.Info("could not fetch Consul Pod", "error", err.Error())
 		return ctrl.Result{}, nil
 	}
-	log.Info("Consul is at: ", "address", consulPod.Status.PodIP, "address", consulPod.Status.HostIP)
+	// log.Info("Consul is at: ", "address", consulPod.Status.PodIP, "address", consulPod.Status.HostIP)
 
 	registeredServiceNames, err := consul.RegisterPodInConsul(pod, ctx)
 	if err != nil {
